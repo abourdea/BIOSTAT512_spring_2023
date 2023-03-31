@@ -1,0 +1,248 @@
+/*Set up libname statement to read data file*/
+libname b512 "K:/Coursework";
+
+/*Import the data file*/
+data cabg; set b512.cabg; run;
+
+proc contents data=cabg; run;
+
+/*formats for vars*/
+proc format;
+value hosp_cntrl	1="government, nonfederal" 
+					2="nongovernment, nonprofit"
+					3="investor owned, for profit";
+value hosp_teach	1="teaching"
+					2="nonteaching";
+value female		0="male"
+					1="female";
+value cm_obese		0="not present"
+					1="present";
+value pay			1="medicare"
+					2="medicaid"
+					3="private inc. HMO"
+					4="self pay"
+					5="no charge"
+					6="other";
+value race			1="white"
+					2="black"
+					3="hispanic"
+					4="asian or pacific islander"
+					5="native american"
+					6="other";
+run;
+
+data cabg; set cabg;
+format 	hosp_cntrl hosp_cntrl.
+		hosp_teach hosp_teach.
+		female female.
+		cm_obese cm_obese.
+		pay1 pay.
+		race race.;
+run;
+
+/*changing dshospid to numeric var*/
+data cabg; set cabg;
+   new = input(dshospid, 8.);
+   drop dshospid;
+   rename new=dshospid;
+run;
+
+data b512.cabg2; set cabg; run;
+
+/*full dataset*/
+ods html file = "K:/Coursework/descriptive_anlaytics_26MAR2023.html";
+/*macro for categorical vars*/
+%macro cat(var);
+proc freq data=b512.cabg2;
+tables &var;
+run;
+%mend;
+
+/*macro for numeric vars*/
+%macro num(var);
+proc means data=b512.cabg2;
+var &var;
+run;
+%mend;
+
+/*hosp level*/
+%cat(hosp_cntrl);
+%cat(hosp_teach);
+%num(hospN);
+%num(dshospid);
+
+/*patient level*/
+%num(id);
+%num(age);
+%cat(female);
+%num(los);
+%num(wcharlsum);
+%cat(cm_obese);
+%cat(pay1);
+%cat(race);
+
+ods html close;
+
+/*checke the distribution for outcome*/
+title "Check Distribution of LOS (Outcome)";
+proc univariate data=b512.cabg2;
+  var los;
+  histogram / normal;
+  qqplot / normal(mu=est sigma=est);
+run;
+
+
+/*binary variabe for median LOS*/
+data b512.cabg2; set b512.cabg2;
+  if 2 le los le 8 then los_c=0;
+  else los_c=1;
+run;
+
+/*by los_c*/
+/*ods html file = "/home/u63157711/sasuser.v94/descriptive_by_los_28MAR2023.html";*/
+/*categorical vars*/
+%macro cat2(var);
+proc freq data = b512.cabg2;
+tables &var*los_c/nopercent norow;
+run;
+%mend;
+
+/*numeric vars*/
+%macro num2(var);
+proc means data = b512.cabg2;
+var &var;
+class los_c;
+run;
+%mend;
+
+/*hosp level*/
+%cat2(hosp_cntrl);
+%cat2(hosp_teach);
+%num2(hospN);
+%num2(dshospid);
+
+/*patient level*/
+%num2(id);
+%num2(age);
+%cat2(female);
+%num2(los);
+%num2(wcharlsum);
+%cat2(cm_obese);
+%cat2(pay1);
+%cat2(race);
+
+ods html close;
+
+/*by log_los*/
+/*Take the natural log of outcome los*/
+data b512.cabg;
+set b512.cabg;
+log_los=log(los);
+run;
+
+proc contents data=b512.cabg;
+run;
+
+/*checke the distribution for log transformation of outcome*/
+title "Check Distribution of log_los (Outcome)";
+proc univariate data=b512.cabg;
+  var log_los;
+  histogram / normal;
+  qqplot / normal(mu=est sigma=est);
+run;
+
+/*ods html file = "/home/u63157711/sasuser.v94/descriptive_anlaytics_by_log_los_29MAR2023.html";*/
+/*macro for categorical vars*/
+%macro cat(var);
+proc freq data=b512.cabg2;
+tables &var;
+run;
+%mend;
+
+/*macro for numeric vars*/
+%macro num(var);
+proc means data=b512.cabg2;
+var &var;
+run;
+%mend;
+
+/*hosp level*/
+%cat(hosp_cntrl);
+%cat(hosp_teach);
+%num(hospN);
+%num(dshospid);
+
+/*patient level*/
+%num(id);
+%num(age);
+%cat(female);
+%num(log_los);
+%num(wcharlsum);
+%cat(cm_obese);
+%cat(pay1);
+%cat(race);
+
+ods html close;
+
+title "regressions of log_los vs. age by gender";
+/*scatterplot of log_los vs. age by gender*/;
+proc sgplot data=b512.cabg2;
+reg y=log_los x=age / group=female;
+run;
+
+title "regressions of log_los vs. race by gender";
+/*scatterplot of log_los vs. race by gender*/;
+proc sgplot data=b512.cabg2;
+reg y=log_los x=race / group=female;
+run;
+
+title "regressions of log_los vs. wcharlsum by gender";
+/*scatterplot of log_los vs. wcharlsum by gender*/;
+proc sgplot data=b512.cabg2;
+reg y=log_los x=wcharlsum  / group=female;
+run;
+
+title "regressions of log_los vs. age by cm_obese";
+/*scatterplot of log_los vs. age by cm_obese*/;
+proc sgplot data=b512.cabg2;
+reg y=log_los x=age / group=cm_obese;
+run;
+
+title "regressions of log_los vs. race by cm_obese";
+/*scatterplot of log_los vs. race by cm_obese*/;
+proc sgplot data=b512.cabg2;
+reg y=log_los x=race / group=cm_obese;
+run;
+
+title "regressions of log_los vs. wcharlsum by cm_obese";
+/*scatterplot of log_los vs. wcharlsum by cm_obese*/;
+proc sgplot data=b512.cabg2;
+reg y=log_los x=wcharlsum  / group=cm_obese;
+run;
+
+
+/*model 1: null model*/
+/*fit model*/
+title "Model 1: Null Model or Intercept Only Model";
+title2 "AKA Variance Components Model";
+proc mixed data=b512.cabg covtest cl method=reml PLOTS(MAXPOINTS=100000);
+  class dshospid;
+  model log_los = / solution ddfm=sat;
+  random int / subject=dshospid solution;
+  ods output solutionR = eblupsdat1;
+run;
+
+/*examine eblups*/
+proc print data=eblupsdat1;
+run;
+/*histogram and qqplot of eblups for random intercept*/
+ods graphics on;
+ods listing;
+proc univariate data=eblupsdat1;
+  where effect="Intercept";
+  var estimate;
+  histogram / normal kernel;
+  qqplot/ normal(mu=est sigma=est);
+run;
+
+
