@@ -1,6 +1,6 @@
 /*************************************************
 Title: 1.Descriptive
-Authors: Thea Bourdeau, 
+Authors: Thea Bourdeau, Yifan Hu, Mengdi Ji, Grace Joachim, Danielle Smith, Hannah Van Wyk 
 Date: 3.22.2023
 *************************************************/
 
@@ -65,6 +65,22 @@ run;
 proc contents data = cabg;
 run;
 
+/*check distribution of outcome PRE log transformation*/
+title "Check Distribution of los (Outcome, pre-transformation)";
+proc univariate data=cabg;
+  var los;
+  histogram / normal;
+  qqplot / normal(mu=est sigma=est);
+run;
+
+/*check the distribution of log transformed outcome*/
+title "Check Distribution of log_los (Outcome)";
+proc univariate data=cabg;
+  var log_los;
+  histogram / normal;
+  qqplot / normal(mu=est sigma=est);
+run;
+
 /*macros for descriptive analytics*/
 /*full dataset*/
 ods html file = "C:\Users\abourdea\Dropbox (University of Michigan)\BIOSTAT512_Final_Project\output\descriptive\descriptive_anlaytics_26MAR2023.html";
@@ -102,7 +118,6 @@ run;
 ods html close;
 
 /*by los*/
-
 ods html file = "C:\Users\abourdea\Dropbox (University of Michigan)\BIOSTAT512_Final_Project\output\descriptive\descriptive_by_los_28MAR2023.html";
 
 /*categorical vars*/
@@ -140,6 +155,8 @@ ods html close;
 
 
 /*output processed dataset to DropBox*/
-data dropbox.cabg_fmt;
+/*data dropbox.cabg_fmt;
 set cabg;
-run;
+run;*/
+
+
