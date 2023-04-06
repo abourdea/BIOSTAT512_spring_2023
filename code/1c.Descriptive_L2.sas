@@ -41,10 +41,12 @@ table hosp_teach/list missing nocum;
 run;
 
 /*continuous var - volume*/
+title "Hospital volume";
 proc univariate data = hosp;
 var hospN;
 hist hospN / normal;
 run;
+title "";
 
 /*get mean LOS by hospital*/
 proc sql;
@@ -57,9 +59,11 @@ proc sql;
 quit;
 
 /*Distribution of mean LOS*/
+title "Distribution of mean LOS by hospital";
 proc univariate data = mean_los_by_site;
 var mean_los;
 histogram mean_los / normal;
+label mean_los = "Mean LOS by hospital";
 run;
 	
 ods html close;	
