@@ -20,11 +20,11 @@ data cabg;
 set dropbox.cabg_fmt;
 run;
 
-/*FINAL MODEL FROM FIXED EFFECTS: model 5: adding level 2 vars*/
-/* title "model 5 - L2 vars"; */
+/*FINAL MODEL FROM FIXED EFFECTS: model 3: adding level 2 vars*/
+/* title "model 3 - L2 vars"; */
 /* proc mixed data=cabg method=ml; */
 /*   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach; */
-/*   model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN/ddfm=sat solution; */
+/*   model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg/ddfm=sat solution; */
 /*   random intercept / subject=dshospid type=un; */
 /* run; */
 
