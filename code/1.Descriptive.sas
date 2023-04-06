@@ -153,6 +153,25 @@ run;
 
 ods html close;
 
+/*Calculate proportion CABG by hospital*/
+proc sql;
+	create table cabg_prop_by_hosp as select distinct
+	dshospid
+	, count(id) as sum_cabg
+	, calculated sum_cabg / hospN as prop_cabg
+	from cabg
+	group by dshospid;
+quit;
+
+/*merge to main dataset*/
+proc sql;
+	create table cabg as select
+	a.*
+	, b.sum_cabg
+	, b.prop_cabg
+	from cabg a left join cabg_prop_by_hosp b
+	on a.dshospid = b.dshospid;
+quit;
 
 /*output processed dataset to DropBox*/
 /*data dropbox.cabg_fmt;

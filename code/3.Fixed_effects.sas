@@ -20,6 +20,9 @@ data cabg;
 set dropbox.cabg_fmt;
 run;
 
+proc contents data = cabg;
+run;
+
 /*only including random intercept in model*/
 
 /*null model
@@ -29,8 +32,8 @@ ICC=0.02593/(0.02593+0.2678)=8.83%
 about 9% of the total variability in los is between hospital; 
 91% of total variability in los is within hospital*/
 
-/*model 4: adding level 1 variables*/
-title "model 4 - L1 vars";
+/*model 2: adding level 1 variables*/
+title "model 2 - L1 vars";
 proc mixed data=cabg covtest method=ml;
   class dshospid female cm_obese pay1 race;
   model log_los = age wcharlsum female cm_obese pay1 race / solution chisq ddfm=sat;
@@ -59,13 +62,13 @@ pval=1-probchi(chi_square,6);
 run;
 /*model is made significantly better including these vars*/
 
-/*model 5: adding level 2 vars*/
-title "model 5 - L2 vars";
+/*model 3: adding level 2 vars*/
+title "model 3 - L2 vars";
 proc mixed data=cabg method=ml;
   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach;
-  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN/ddfm=sat solution;
+  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg/ddfm=sat solution;
   random intercept / subject=dshospid type=un;
-run;
+run; /*LL:16138.2*/
 
 /*level 2 R^2 calculation*/
 /*between/intercept=0.01686
@@ -76,31 +79,31 @@ R^2 level 2=(0.01978-0.01686)/0.01978=14.8%
 
 /*H0: level 2 vars=0; H1: at least one var does not=0*/
 data lrtest;
-LLfull=16138.8;
+LLfull=16138.2;
 LLred=16155.7;
 Chi_square=llred-llfull;
 pval=1-probchi(chi_square,3);
 run;
 /*model is made significantly better including these vars*/
 
-/*model 6: interactions*/
-title "model 6 - L1 interactions";
+/*model 4: interactions*/
+title "model 4 - L1 interactions";
 proc mixed data=cabg method=ml;
   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach;
-  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN age*female female*race/ddfm=sat solution;
+  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg age*female female*race/ddfm=sat solution;
   random intercept / subject=dshospid type=un;
 run;
 
 /*R^2 calculation*/
-/*between/intercept=0.01681
+/*between/intercept=0.01682
 within/error=0.2146
 R^2 level 1=(0.2147-0.2146)/0.2147=0.05%%
 0.05% of level 1's variance is explained by adding these interactions*/
 
 /*H0: level 2 vars=0; H1: at least one var does not=0*/
 data lrtest;
-LLfull=16132.3;
-LLred=16138.8;
+LLfull=16133.6;
+LLred=16138.2;
 Chi_square=llred-llfull;
 pval=1-probchi(chi_square,2);
 run;
@@ -108,8 +111,8 @@ run;
 significant, female*race not significant*/
 
 /*try adding interaction btwn wcharlsum and obese based on plots*/
-/*model 7: wcharlsum*obese*/
-title "model 7 - add interaction btwn wcharlsum and obese";
+/*model 5: wcharlsum*obese*/
+title "model 5 - add interaction btwn wcharlsum and obese";
 proc mixed data=cabg method=ml;
   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach;
   model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN wcharlsum*cm_obese/ddfm=sat solution;
@@ -119,7 +122,9 @@ run;
 /*H0: interaction=0; H1: interaction not=0*/
 data lrtest;
 LLfull=16137.5;
-LLred=16138.8;
+LLred=16138.2;
 Chi_square=llred-llfull;
 pval=1-probchi(chi_square,2);
 run; /*not significant, exclude*/
+
+/* Model 3 (model with L2 var added, no interactions) is the best model. Move forward with model 3 to random effects testing. */
