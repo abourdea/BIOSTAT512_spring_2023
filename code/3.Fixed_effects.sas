@@ -32,6 +32,8 @@ ICC=0.02593/(0.02593+0.2678)=8.83%
 about 9% of the total variability in los is between hospital; 
 91% of total variability in los is within hospital*/
 
+ods html file = "C:\Users\abourdea\Dropbox (University of Michigan)\BIOSTAT512_Final_Project\output\modeling process\fixed_effects_TB_4.8.2023.html";
+
 /*model 2: adding level 1 variables*/
 title "model 2 - L1 vars";
 proc mixed data=cabg covtest method=ml;
@@ -58,7 +60,7 @@ data lrtest;
 LLfull=16155.7;
 LLred=18936.6;
 Chi_square=llred-llfull;
-pval=1-probchi(chi_square,6);
+pval=put(1-probchi(chi_square,6), 6.5);
 run;
 /*model is made significantly better including these vars*/
 
@@ -66,7 +68,7 @@ run;
 title "model 3 - L2 vars";
 proc mixed data=cabg method=ml;
   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach;
-  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg/ddfm=sat solution;
+  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg/solution chisq ddfm=sat;
   random intercept / subject=dshospid type=un;
 run; /*LL:16138.2*/
 
@@ -90,7 +92,7 @@ run;
 title "model 4 - L1 interactions";
 proc mixed data=cabg method=ml;
   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach;
-  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg age*female female*race/ddfm=sat solution;
+  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN prop_cabg age*female female*race/solution chisq ddfm=sat;
   random intercept / subject=dshospid type=un;
 run;
 
@@ -115,7 +117,7 @@ significant, female*race not significant*/
 title "model 5 - add interaction btwn wcharlsum and obese";
 proc mixed data=cabg method=ml;
   class dshospid id female cm_obese pay1 race hosp_cntrl hosp_teach;
-  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN wcharlsum*cm_obese/ddfm=sat solution;
+  model log_los = age wcharlsum female cm_obese pay1 race hosp_cntrl hosp_teach hospN wcharlsum*cm_obese/solution chisq ddfm=sat;
   random intercept / subject=dshospid type=un;
 run;
 
@@ -124,7 +126,9 @@ data lrtest;
 LLfull=16137.5;
 LLred=16138.2;
 Chi_square=llred-llfull;
-pval=1-probchi(chi_square,2);
+pval=1-probchi(chi_square,1);
 run; /*not significant, exclude*/
 
 /* Model 3 (model with L2 var added, no interactions) is the best model. Move forward with model 3 to random effects testing. */
+
+ods html close;
