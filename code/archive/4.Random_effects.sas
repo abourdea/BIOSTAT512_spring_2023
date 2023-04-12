@@ -1,5 +1,5 @@
 /*************************************************
-Title: 2.Null_model
+Title: 4.Random_effects
 Authors: Thea Bourdeau, Yifan Hu, Mengdi Ji, Grace Joachim, Danielle Smith, Hannah Van Wyk 
 Date: 4.5.2023
 *************************************************/
