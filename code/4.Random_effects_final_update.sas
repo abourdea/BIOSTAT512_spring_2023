@@ -7,11 +7,11 @@ ods trace on;
 %let user = abourdea;
 %put &user;
 
-libname b512 "/home/u63157711/sasuser.v94";
+libname dropbox "C:\Users\&user\Dropbox (University of Michigan)\BIOSTAT512_Final_Project\data";
 
 /*load dataset with formats etc. from DropBox*/
 data cabg;
-set b512.cabg;
+set dropbox.cabg_fmt;
 run;
 
 /*FINAL MODEL FROM FIXED EFFECTS: model 3: adding level 2 vars*/
