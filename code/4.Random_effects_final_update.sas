@@ -90,7 +90,7 @@ data test2;
   LLRed =16268.4;
   Chi_square=llred-llfull;
 
-  pvalue=1-probchi(chi_square,1);
+  pvalue=0.5*(1-probchi(chi_square,1));
 run;
 /*p=0.00336163*/*/
 
@@ -126,7 +126,7 @@ data test3;
   LLRed =16268.4;
   Chi_square=llred-llfull;
 
-  pvalue=1-probchi(chi_square,1);
+  pvalue=0.5*(1-probchi(chi_square,1));
 run;
 /*p=0.0319719562*/
 
@@ -162,7 +162,7 @@ data test4;
   LLRed =16268.4;
   Chi_square=llred-llfull;
 
-  pvalue=1-probchi(chi_square,1);
+  pvalue=0.5*1-probchi(chi_square,1));
 run;
 /*p=0.4385780261*/
 
