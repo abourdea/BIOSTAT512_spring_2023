@@ -28,10 +28,11 @@ proc sgplot data=cabg;
 reg y=log_los x=age / group=female;
 run;
 
-/*scatterplot of log_los vs. race by gender*/
-title "regressions of log_los vs. race by gender";
-proc sgplot data=cabg;
-reg y=log_los x=race / group=female;
+/*cluster boxplots of log_los vs. race by gender*/
+title "cluster boxplots of log_los vs. race by gender";
+proc sgpanel data=cabg;
+panelby female;
+vbox log_los / category=race;
 run;
 
 /*scatterplot of log_los vs. wcharlsum by cm_obese*/
